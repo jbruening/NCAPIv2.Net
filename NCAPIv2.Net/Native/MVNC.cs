@@ -13,23 +13,23 @@ namespace NCAPIv2.Native
     {
         #region Global
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
-        public static extern ncStatus_t ncGlobalSetOption(int option, void* data, 
+        public static extern ncStatus_t ncGlobalSetOption(ncGlobalOption_t option, void* data, 
             unsigned_int dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
-        public static extern ncStatus_t ncGlobalGetOption(int option, void* data, 
+        public static extern ncStatus_t ncGlobalGetOption(ncGlobalOption_t option, void* data, 
             unsigned_int* dataLength);
         #endregion
 
         #region Device
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
         public static extern ncStatus_t ncDeviceSetOption(ncDeviceHandle_t* deviceHandle,
-                        int option, void* data,
+                        ncDeviceOption_t option, void* data,
                         unsigned_int dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
         public static extern ncStatus_t ncDeviceGetOption(ncDeviceHandle_t* deviceHandle,
-            int option, void* data, unsigned_int* dataLength);
+            ncDeviceOption_t option, void* data, unsigned_int* dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
         public static extern ncStatus_t ncDeviceCreate(int index, ncDeviceHandle_t** deviceHandle);
@@ -58,11 +58,11 @@ namespace NCAPIv2.Native
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
         public static extern ncStatus_t ncGraphSetOption(ncGraphHandle_t *graphHandle,
-            int option, void* data, unsigned_int dataLength);
+            ncGraphOption_t option, void* data, unsigned_int dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
         public static extern ncStatus_t ncGraphGetOption(ncGraphHandle_t *graphHandle,
-                        int option, void* data,
+                        ncGraphOption_t option, void* data,
                         unsigned_int* dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
@@ -107,11 +107,11 @@ namespace NCAPIv2.Native
                         unsigned_int numElem);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
-        public static extern ncStatus_t ncFifoSetOption(ncFifoHandle_t* fifoHandle, int option,
+        public static extern ncStatus_t ncFifoSetOption(ncFifoHandle_t* fifoHandle, ncFifoOption_t option,
             void* data, unsigned_int dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
-        public static extern ncStatus_t ncFifoGetOption(ncFifoHandle_t* fifoHandle, int option,
+        public static extern ncStatus_t ncFifoGetOption(ncFifoHandle_t* fifoHandle, ncFifoOption_t option,
             void* data, unsigned_int* dataLength);
 
         [DllImport(Invoke.Dll, CallingConvention = Invoke.Convention)]
