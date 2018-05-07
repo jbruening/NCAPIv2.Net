@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+    <RootNamespace>NCAPIv2</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+    <PackageId>NCAPIv2.Net</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Justin Bruening</Authors>
+    <Description>.NET Bindings Intel Movidius NCAPIv2</Description>
+    <Owners>Justin Bruening</Owners>
+  </PropertyGroup>
+
+</Project>
