@@ -1,4 +1,4 @@
-﻿//based on https://github.com/movidius/ncsdk/commit/f0e4de8c3ec3be5c7d6fc8f715bc09f41725f3d1
+﻿//based on https://github.com/movidius/ncsdk/blob/f0e4de8c3ec3be5c7d6fc8f715bc09f41725f3d1/api/include/mvnc.h
 
 namespace NCAPIv2.Native
 {
