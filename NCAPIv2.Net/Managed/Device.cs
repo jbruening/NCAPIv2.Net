@@ -13,7 +13,7 @@ namespace NCAPIv2.Managed
     /// </summary>
     public unsafe class Device : UnmanagedObject
     {
-        private List<Graph> _graphs;
+        private readonly List<Graph> _graphs = new List<Graph>();
 
         #region Properties
         /// <summary>
