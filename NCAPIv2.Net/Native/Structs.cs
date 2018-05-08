@@ -34,10 +34,18 @@ namespace NCAPIv2.Native
     [StructLayout(LayoutKind.Sequential)]
     public struct ncTensorDescriptor_t
     {
-        unsigned_int n;
-        unsigned_int c;
-        unsigned_int w;
-        unsigned_int h;
-        unsigned_int totalSize;
+        public unsigned_int n;
+        public unsigned_int c;
+        public unsigned_int w;
+        public unsigned_int h;
+        public unsigned_int totalSize;
+    }
+
+    public static class Sizes
+    {
+        public const int NC_MAX_NAME_SIZE = 28;
+        public const int NC_THERMAL_BUFFER_SIZE = 100;
+        public const int NC_DEBUG_BUFFER_SIZE = 120;
+        public const int NC_VERSION_MAX_SIZE = 4;
     }
 }

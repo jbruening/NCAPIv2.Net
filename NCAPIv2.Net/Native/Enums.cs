@@ -2,7 +2,7 @@
 
 namespace NCAPIv2.Native
 {
-    public enum ncStatus_t
+    public enum ncStatus_t : int
     {
         NC_OK = 0,
         NC_BUSY = -1,                     // Device is busy, retry later
@@ -23,7 +23,7 @@ namespace NCAPIv2.Native
         NC_INVALID_HANDLE = -15 // handle to object that is invalid
     }
 
-    public enum ncGlobalOption_t
+    public enum ncGlobalOption_t : int
     {
         NC_RW_LOG_LEVEL = 0,    // Log level, int, MVLOG_DEBUG = 0, debug and above (full verbosity)
                                 // MVLOG_INFO = 1, info and above
@@ -33,7 +33,7 @@ namespace NCAPIv2.Native
         NC_RO_API_VERSION = 1, // retruns API Version. array of unsigned int of size 4
     }
 
-    public enum ncGraphOption_t
+    public enum ncGraphOption_t : int
     {
         NC_RO_GRAPH_STATE = 1000,           // Returns graph state: CREATED, ALLOCATED, WAITING_FOR_BUFFERS, RUNNING, DESTROYED
         NC_RO_GRAPH_TIME_TAKEN = 1001,      // Return time taken for last inference (float *)
@@ -62,14 +62,14 @@ namespace NCAPIv2.Native
         NC_RW_GRAPH_EXECUTORS_NUM = 1110,
     }
 
-    public enum ncDeviceState_t
+    public enum ncDeviceState_t : int
     {
         NC_DEVICE_CREATED = 0,
         NC_DEVICE_OPENED = 1,
         NC_DEVICE_CLOSED = 2,
     }
 
-    public enum ncGraphState_t
+    public enum ncGraphState_t : int
     {
         NC_GRAPH_CREATED = 0,
         NC_GRAPH_ALLOCATED = 1,
@@ -77,13 +77,19 @@ namespace NCAPIv2.Native
         NC_GRAPH_RUNNING = 3,
     }
 
-    public enum ncDeviceHwVersion_t
+    public enum ncFifoState_t : int
     {
         NC_FIFO_CREATED = 0,
         NC_FIFO_ALLOCATED = 1,
     }
 
-    public enum ncDeviceOption_t
+    public enum ncDeviceHwVersion_t : int
+    {
+        NC_MA2450 = 0,
+        NC_MA2480 = 1,
+    }
+
+    public enum ncDeviceOption_t : int
     {
         NC_RO_DEVICE_THERMAL_STATS = 2000,          // Return temperatures, float *, not for general use
         NC_RO_DEVICE_THERMAL_THROTTLING_LEVEL = 2001,   // 1=TEMP_LIM_LOWER reached, 2=TEMP_LIM_HIGHER reached
@@ -105,7 +111,7 @@ namespace NCAPIv2.Native
         NC_RO_DEVICE_HW_VERSION = 2015, //returns HW Version, enum
     }
 
-    public enum ncFifoType_t
+    public enum ncFifoType_t : int
     {
         NC_FIFO_HOST_RO = 0, // fifo can be read through the API but can not be
                              // written ( graphs can read and write data )
@@ -113,13 +119,13 @@ namespace NCAPIv2.Native
                              // read (graphs can read but can not write)
     }
 
-    public enum ncFifoDataType_t
+    public enum ncFifoDataType_t : int
     {
         NC_FIFO_FP16 = 0,
         NC_FIFO_FP32 = 1,
     }
 
-    public enum ncFifoOption_t
+    public enum ncFifoOption_t : int
     {
         NC_RW_FIFO_TYPE = 0,            // configure the fifo type to one type from ncFifoType_t
         NC_RW_FIFO_CONSUMER_COUNT = 1,  // The number of consumers of elements

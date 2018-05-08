@@ -4,36 +4,148 @@ using System.Text;
 using NCAPIv2.Native;
 using static NCAPIv2.Native.MVNC;
 using static NCAPIv2.Managed.StatusThrows;
+using System.Runtime.CompilerServices;
 
 namespace NCAPIv2.Managed
 {
+    /// <summary>
+    /// a neural compute device
+    /// </summary>
     public unsafe class Device : UnmanagedObject
     {
-        private ncDeviceHandle_t* _handle
+        private List<Graph> _graphs;
+
+        #region Properties
+        /// <summary>
+        /// the native handle
+        /// </summary>
+        public ncDeviceHandle_t* Handle
         {
             get => (ncDeviceHandle_t*)_ptr;
-            set => _ptr = (IntPtr)value;
+            private set => _ptr = (IntPtr)value;
         }
 
+        /// <summary>
+        /// The state of the device
+        /// </summary>
+        public ncDeviceState_t State => GetProperty<ncDeviceState_t>(ncDeviceOption_t.NC_RO_DEVICE_STATE);
+        /// <summary>
+        /// The current memory in use on the device in bytes
+        /// </summary>
+        public int MemoryUsed => GetProperty<int>(ncDeviceOption_t.NC_RO_DEVICE_CURRENT_MEMORY_USED);
+        /// <summary>
+        /// The total memory available on the device in bytes.
+        /// </summary>
+        public int MemorySize => GetProperty<int>(ncDeviceOption_t.NC_RO_DEVICE_MEMORY_SIZE);
+        /// <summary>
+        /// The maximum number of FIFOs that can be allocated for the device.
+        /// </summary>
+        public int MaxFIFOCount => GetProperty<int>(ncDeviceOption_t.NC_RO_DEVICE_MAX_FIFO_NUM);
+        /// <summary>
+        /// The hardware version of the device.
+        /// </summary>
+        public ncDeviceHwVersion_t HardwareVersion => GetProperty<ncDeviceHwVersion_t>(ncDeviceOption_t.NC_RO_DEVICE_HW_VERSION);
+        /// <summary>
+        /// The number of graphs currently allocated for the device.
+        /// </summary>
+        public int AllocatedGraphCount => GetProperty<int>(ncDeviceOption_t.NC_RO_DEVICE_ALLOCATED_GRAPH_NUM);
+        /// <summary>
+        /// The version of the firmware currently running on the device.
+        /// </summary>
+        public int[] FirmwareVersion => GetPropertyArray<int>(ncDeviceOption_t.NC_RO_DEVICE_FW_VERSION, Sizes.NC_VERSION_MAX_SIZE);
+        /// <summary>
+        /// the internal name of the device.
+        /// </summary>
+        public string DeviceName => Encoding.ASCII.GetString(GetPropertyArray<byte>(ncDeviceOption_t.NC_RO_DEVICE_NAME, Sizes.NC_MAX_NAME_SIZE));
+        /// <summary>
+        /// Device temperatures in degrees Celsius. 
+        /// </summary>
+        public float[] ThermalStats => GetPropertyArray<float>(ncDeviceOption_t.NC_RO_DEVICE_THERMAL_STATS, Sizes.NC_THERMAL_BUFFER_SIZE);
+
+        /// <summary>
+        /// Thermal throttling currently taking place
+        /// </summary>
+        public ThermalThrottling ThermalThrottling => GetProperty<ThermalThrottling>(ncDeviceOption_t.NC_RO_DEVICE_THERMAL_THROTTLING_LEVEL);
+        #endregion
+
+        /// <summary>
+        /// create an ncDevice.
+        /// Typical multi-device usage is to call this function repeatedly, starting with index = 0 and incrementing the index each time until an error is returned.
+        /// </summary>
+        /// <param name="index"></param>
         public Device(int index)
         {
             var handle = (ncDeviceHandle_t*)IntPtr.Zero;
             Ensure(ncDeviceCreate(index, &handle));
-            _ptr = (IntPtr)handle;
+            Handle = handle;
         }
 
+        #region public methods
+        /// <summary>
+        /// initializes a neural compute device and opens communication.
+        /// </summary>
+        public void Open()
+        {
+            Ensure(ncDeviceOpen(Handle));
+        }
+
+        /// <summary>
+        /// closes communication with a neural compute device that has been opened
+        /// </summary>
         public void Close()
         {
-            Ensure(ncDeviceClose(_handle));
+            Ensure(ncDeviceClose(Handle));
+        }
+        #endregion
+
+        #region protected/private methods
+        internal void AddGraph(Graph graph)
+        {
+            _graphs.Add(graph);
         }
 
+        private T GetProperty<T>(ncDeviceOption_t option)
+            where T : struct
+        {
+            var data = new T();
+            //uint size = System.Runtime.CompilerServices.Unsafe
+            uint size = (uint)Unsafe.SizeOf<T>();
+            Ensure(ncDeviceGetOption(Handle, option, Unsafe.AsPointer(ref data), &size));
+            return data;
+        }
+
+        private T[] GetPropertyArray<T>(ncDeviceOption_t option, int length)
+            where T: struct
+        {
+            var data = new T[length];
+            uint size = (uint)Unsafe.SizeOf<T>() * (uint)length;
+            ref byte dptr = ref Unsafe.As<T, byte>(ref data[0]);
+            fixed (byte* ptr = &dptr)
+            {
+                Ensure(ncDeviceGetOption(Handle, option, ptr, &size));
+            }
+
+            Array.Resize(ref data, (int)size);
+
+            return data;
+        }
+
+        /// <summary>
+        /// close (if necessary) and destroy the unmanaged pointer to the device
+        /// </summary>
         protected override void DisposeObject()
         {
-            Close();
+            foreach (var g in _graphs)
+                g.Dispose();
+            _graphs.Clear();
 
-            var ptr = _handle;
+            if (State == ncDeviceState_t.NC_DEVICE_OPENED)
+                Close();
+
+            var ptr = Handle;
             Ensure(ncDeviceDestroy(&ptr));
-            _handle = ptr;
+            Handle = ptr;
         }
+        #endregion
     }
 }

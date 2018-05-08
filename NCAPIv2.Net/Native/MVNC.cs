@@ -9,6 +9,9 @@ namespace NCAPIv2.Native
     using unsigned_int = UInt32;
     using _char = Byte;
 
+    /// <summary>
+    /// https://movidius.github.io/ncsdk/ncapi/ncapi2/c_api/readme.html
+    /// </summary>
     public unsafe static class MVNC
     {
         #region Global
