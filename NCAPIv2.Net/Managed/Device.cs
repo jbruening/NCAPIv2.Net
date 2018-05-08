@@ -69,6 +69,32 @@ namespace NCAPIv2.Managed
         #endregion
 
         /// <summary>
+        /// Get all available devices plugged in. Only supports ushort.MaxValue devices.
+        /// </summary>
+        /// <returns></returns>
+        public static List<Tuple<ncStatus_t, Device>> GetDevices()
+        {
+            var ret = new List<Tuple<ncStatus_t, Device>>();
+
+            //I don't imagine someone can plug in more than 65k devices.
+            for (var i = 0; i < ushort.MaxValue; i++)
+                try
+                {
+                    ret.Add(Tuple.Create(ncStatus_t.NC_OK, new Device(i)));
+                }
+                catch (StatusException se)
+                {
+                    //no more devices
+                    if (se.Status == ncStatus_t.NC_DEVICE_NOT_FOUND)
+                        return ret;
+                    else
+                        ret.Add(Tuple.Create(se.Status, (Device)null));
+                }
+
+            return ret;
+        }
+
+        /// <summary>
         /// create an ncDevice.
         /// Typical multi-device usage is to call this function repeatedly, starting with index = 0 and incrementing the index each time until an error is returned.
         /// </summary>
