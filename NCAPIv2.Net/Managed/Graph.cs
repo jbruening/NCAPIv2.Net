@@ -8,8 +8,14 @@ using System.Runtime.CompilerServices;
 
 namespace NCAPIv2.Managed
 {
+    /// <summary>
+    /// data and resources corresponding to network graph.
+    /// </summary>
     public unsafe class Graph : UnmanagedObject
     {
+        /// <summary>
+        /// the native handle
+        /// </summary>
         public ncGraphHandle_t* Handle
         {
             get => (ncGraphHandle_t*)_ptr;
@@ -41,10 +47,23 @@ namespace NCAPIv2.Managed
         /// </summary>
         public int ClassLimit => GetProperty<int>(ncGraphOption_t.NC_RO_GRAPH_OPTION_CLASS_LIMIT);
 
+        /// <summary>
+        /// the device this graph has been allocated to
+        /// </summary>
         public Device Device { get; private set; }
+        /// <summary>
+        /// the input fifo
+        /// </summary>
         public Fifo Input { get; private set; }
+        /// <summary>
+        /// the output fifo
+        /// </summary>
         public Fifo Output { get; private set; }
 
+        /// <summary>
+        /// create a new graph
+        /// </summary>
+        /// <param name="name"></param>
         public Graph(string name)
         {
             var handle = (ncGraphHandle_t*)IntPtr.Zero;
@@ -53,6 +72,11 @@ namespace NCAPIv2.Managed
             Handle = handle;
         }
 
+        /// <summary>
+        /// allocate this graph to the specified device, with the specified graph from memory
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="graphBuffer"></param>
         public void Allocate(Device device, byte[] graphBuffer)
         {
             if (Device != null)
@@ -65,6 +89,12 @@ namespace NCAPIv2.Managed
             Device = device;
         }
 
+        /// <summary>
+        /// set up up the fifo input queue
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="maxElements"></param>
+        /// <returns></returns>
         public Fifo CreateInput(string name = "input", uint maxElements = 2)
         {
             if (Input != null)
@@ -80,6 +110,13 @@ namespace NCAPIv2.Managed
             return Input = new Fifo(handle);
         }
 
+
+        /// <summary>
+        /// set up the fifo output queue
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="maxElements"></param>
+        /// <returns></returns>
         public Fifo CreateOutput(string name = "output", uint maxElements = 2)
         {
             if (Output != null)
@@ -95,7 +132,12 @@ namespace NCAPIv2.Managed
             return Output = new Fifo(handle);
         }
 
-        public void Allocate(Device device, byte[] graphBuffer, out Fifo input, out Fifo output)
+        /// <summary>
+        /// allocate to the device with the specified graph, as well as setting up the input and output fifos
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="graphBuffer"></param>
+        public void AllocateWithFifos(Device device, byte[] graphBuffer)
         {
             if (Device != null)
                 throw new InvalidOperationException("Already allocated");
@@ -107,14 +149,18 @@ namespace NCAPIv2.Managed
                 Ensure(ncGraphAllocateWithFifos(device.Handle, Handle, gptr, (uint)graphBuffer.Length, &inputFifo, &outputFifo));
 
             Device = device;
-            Input = input = new Fifo(inputFifo);
-            Output = output = new Fifo(outputFifo);
+            Input = new Fifo(inputFifo);
+            Output = new Fifo(outputFifo);
         }
 
-        public void QueueInference(byte[] imageBuffer)
+        /// <summary>
+        /// Queue inference of the specified data
+        /// </summary>
+        /// <param name="buffer"></param>
+        public void QueueInference(byte[] buffer)
         {
-            var length = (uint)imageBuffer.Length;
-            fixed (byte* iptr = imageBuffer)
+            var length = (uint)buffer.Length;
+            fixed (byte* iptr = buffer)
                 Ensure(ncGraphQueueInferenceWithFifoElem(Handle, Input.Handle, Output.Handle, iptr, &length, (void*)IntPtr.Zero));
         }
 
@@ -144,6 +190,9 @@ namespace NCAPIv2.Managed
             return data;
         }
 
+        /// <summary>
+        /// dispose of the unmanaged data
+        /// </summary>
         protected override void DisposeObject()
         {
             if (Input != null)

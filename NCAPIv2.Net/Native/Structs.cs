@@ -3,6 +3,7 @@
 using System;
 using System.Runtime.InteropServices;
 
+#pragma warning disable 1591
 namespace NCAPIv2.Native
 {
     using fifoPrivate_t = IntPtr;
@@ -49,3 +50,4 @@ namespace NCAPIv2.Native
         public const int NC_VERSION_MAX_SIZE = 4;
     }
 }
+#pragma warning restore 1591

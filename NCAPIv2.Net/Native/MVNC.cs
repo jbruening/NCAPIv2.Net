@@ -4,6 +4,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#pragma warning disable 1591
 namespace NCAPIv2.Native
 {
     using unsigned_int = UInt32;
@@ -133,3 +134,4 @@ namespace NCAPIv2.Native
         #endregion
     }
 }
+#pragma warning restore 1591

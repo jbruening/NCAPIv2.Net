@@ -1,5 +1,5 @@
 ﻿//based on https://github.com/movidius/ncsdk/blob/f0e4de8c3ec3be5c7d6fc8f715bc09f41725f3d1/api/include/mvnc.h
-
+#pragma warning disable 1591
 namespace NCAPIv2.Native
 {
     public enum ncStatus_t : int
@@ -146,3 +146,4 @@ namespace NCAPIv2.Native
         NC_RO_FIFO_ELEMENT_DATA_SIZE = 10,  //element data size in bytes, int
     }
 }
+#pragma warning restore 1591

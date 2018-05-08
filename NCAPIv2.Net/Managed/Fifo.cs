@@ -8,8 +8,14 @@ using System.Runtime.CompilerServices;
 
 namespace NCAPIv2.Managed
 {
+    /// <summary>
+    /// data and resources corresponding to a FIFO queue.
+    /// </summary>
     public unsafe class Fifo : UnmanagedObject
     {
+        /// <summary>
+        /// the native handle
+        /// </summary>
         public ncFifoHandle_t* Handle
         {
             get => (ncFifoHandle_t*)_ptr;
@@ -62,6 +68,10 @@ namespace NCAPIv2.Managed
             Handle = handle;
         }
 
+        /// <summary>
+        /// get the results from the queued inference
+        /// </summary>
+        /// <param name="outputData"></param>
         public void GetResults(byte[] outputData)
         {
             var outputElementSize = (uint)ElementSize;
@@ -87,6 +97,9 @@ namespace NCAPIv2.Managed
             Ensure(ncFifoSetOption(Handle, option, Unsafe.AsPointer(ref data), (uint)Unsafe.SizeOf<T>()));
         }
 
+        /// <summary>
+        /// dispose of the unmanaged data
+        /// </summary>
         protected override void DisposeObject()
         {
             var ptr = Handle;
