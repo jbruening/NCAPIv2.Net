@@ -73,63 +73,35 @@ namespace NCAPIv2.Managed
         }
 
         /// <summary>
-        /// allocate this graph to the specified device, with the specified graph from memory
+        /// Allocate to the device with the specified graph and allocate the fifos
         /// </summary>
         /// <param name="device"></param>
         /// <param name="graphBuffer"></param>
-        public void Allocate(Device device, byte[] graphBuffer)
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        /// <param name="inputNumElements"></param>
+        /// <param name="outputNumElements"></param>
+        public void AllocateWithFifos(Device device, byte[] graphBuffer, Fifo input, Fifo output, 
+            int inputNumElements = 2, int outputNumElements = 2)
         {
             if (Device != null)
-                throw new InvalidOperationException("Already allocated");
+                throw new InvalidOperationException("Device already allocated");
+            if (Input != null)
+                throw new InvalidOperationException("Input already allocated");
+            if (Output != null)
+                throw new InvalidOperationException("Output already allocated");
 
             fixed (byte* gptr = graphBuffer)
                 Ensure(ncGraphAllocate(device.Handle, Handle, gptr, (uint)graphBuffer.Length));
-
-            device.AddGraph(this);
             Device = device;
-        }
-
-        /// <summary>
-        /// set up up the fifo input queue
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="maxElements"></param>
-        /// <returns></returns>
-        public Fifo CreateInput(string name = "input", uint maxElements = 2)
-        {
-            if (Input != null)
-                throw new InvalidOperationException("cannot create input, already created");
-
-            ncFifoHandle_t* handle = (ncFifoHandle_t*)IntPtr.Zero;
-            fixed (byte* nptr = name.GetCStr(Sizes.NC_MAX_NAME_SIZE))
-                ncFifoCreate(nptr, ncFifoType_t.NC_FIFO_HOST_WO, &handle);
 
             var desc = InputDescriptors[0];
-            Ensure(ncFifoAllocate(handle, Device.Handle, &desc, maxElements));
+            Ensure(ncFifoAllocate(input.Handle, Device.Handle, &desc, (uint)inputNumElements));
+            Input = input;
 
-            return Input = new Fifo(handle);
-        }
-
-
-        /// <summary>
-        /// set up the fifo output queue
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="maxElements"></param>
-        /// <returns></returns>
-        public Fifo CreateOutput(string name = "output", uint maxElements = 2)
-        {
-            if (Output != null)
-                throw new InvalidOperationException("cannot create output, already created");
-
-            ncFifoHandle_t* handle = (ncFifoHandle_t*)IntPtr.Zero;
-            fixed (byte* nptr = name.GetCStr(Sizes.NC_MAX_NAME_SIZE))
-                ncFifoCreate(nptr, ncFifoType_t.NC_FIFO_HOST_RO, &handle);
-
-            var desc = OutputDescriptors[0];
-            Ensure(ncFifoAllocate(handle, Device.Handle, &desc, maxElements));
-
-            return Output = new Fifo(handle);
+            desc = OutputDescriptors[0];
+            Ensure(ncFifoAllocate(output.Handle, Device.Handle, &desc, (uint)outputNumElements));
+            Output = output;
         }
 
         /// <summary>
@@ -137,16 +109,29 @@ namespace NCAPIv2.Managed
         /// </summary>
         /// <param name="device"></param>
         /// <param name="graphBuffer"></param>
-        public void AllocateWithFifos(Device device, byte[] graphBuffer)
+        /// <param name="inputNumElements"></param>
+        /// <param name="inputDataType"></param>
+        /// <param name="outputNumElements"></param>
+        /// <param name="outputDataType"></param>
+        public void AllocateWithFifos(Device device, byte[] graphBuffer,
+            int inputNumElements = 2, ncFifoDataType_t inputDataType = ncFifoDataType_t.NC_FIFO_FP32,
+            int outputNumElements = 2, ncFifoDataType_t outputDataType = ncFifoDataType_t.NC_FIFO_FP32)
         {
             if (Device != null)
                 throw new InvalidOperationException("Already allocated");
+            if (Input != null)
+                throw new InvalidOperationException("Input already allocated");
+            if (Output != null)
+                throw new InvalidOperationException("Output already allocated");
 
             ncFifoHandle_t* inputFifo = (ncFifoHandle_t*)IntPtr.Zero;
             ncFifoHandle_t* outputFifo = (ncFifoHandle_t*)IntPtr.Zero;
 
             fixed (byte* gptr = graphBuffer)
-                Ensure(ncGraphAllocateWithFifos(device.Handle, Handle, gptr, (uint)graphBuffer.Length, &inputFifo, &outputFifo));
+                Ensure(ncGraphAllocateWithFifosEx(device.Handle, Handle, 
+                    gptr, (uint)graphBuffer.Length, 
+                    &inputFifo, ncFifoType_t.NC_FIFO_HOST_WO, inputNumElements, inputDataType, 
+                    &outputFifo, ncFifoType_t.NC_FIFO_HOST_RO, outputNumElements, outputDataType));
 
             Device = device;
             Input = new Fifo(inputFifo);

@@ -71,22 +71,43 @@ namespace NCAPIv2.Managed
             set => SetProperty<ncFifoType_t>(ncFifoOption_t.NC_RW_FIFO_TYPE, value);
         }
 
+        /// <summary>
+        /// construct an empty
+        /// </summary>
+        /// <param name="name"></param>
+        public Fifo(string name)
+        {
+            ncFifoHandle_t* handle = (ncFifoHandle_t*)IntPtr.Zero;
+            fixed (byte* nptr = name.GetCStr(Sizes.NC_MAX_NAME_SIZE))
+                ncFifoCreate(nptr, ncFifoType_t.NC_FIFO_HOST_RO, &handle);
+        }
+
         internal Fifo(ncFifoHandle_t* handle)
         {
             Handle = handle;
         }
 
         /// <summary>
-        /// get the results from the queued inference
+        /// get the results from the queued inference (to managed memory)
         /// </summary>
         /// <param name="outputData"></param>
-        public void GetResults(byte[] outputData)
+        public void ReadElement(byte[] outputData)
         {
             var outputElementSize = (uint)ElementSize;
             if (outputData.Length != outputElementSize)
                 throw new ArgumentOutOfRangeException(nameof(outputData), $"not the correct size. Expected {outputElementSize}, given {outputData.Length}");
             fixed (byte* optr = outputData)
                 Ensure(ncFifoReadElem(Handle, optr, &outputElementSize, (void**)IntPtr.Zero));
+        }
+
+        /// <summary>
+        /// get the results from the queued inference (to unmanaged memory)
+        /// </summary>
+        /// <param name="outputData"></param>
+        /// <param name="length"></param>
+        public void ReadElement(byte* outputData, uint length)
+        {
+            Ensure(ncFifoReadElem(Handle, outputData, &length, (void**)IntPtr.Zero));
         }
 
         private T GetProperty<T>(ncFifoOption_t option)
