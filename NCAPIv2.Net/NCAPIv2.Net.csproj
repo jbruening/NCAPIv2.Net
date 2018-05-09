@@ -12,8 +12,12 @@
     <PackageId>NCAPIv2.Net</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <Authors>Justin Bruening</Authors>
-    <Description>.NET Bindings Intel Movidius NCAPIv2</Description>
+    <Description>.NET Bindings for the Intel Movidius NCAPIv2 https://github.com/movidius/ncsdk/tree/ncsdk2
+
+As the movidius only works on linux at this time, these bindings will of course only work on linux</Description>
     <Owners>Justin Bruening</Owners>
+    <PackageTags>intel movidius binding pinvoke</PackageTags>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
