@@ -57,11 +57,19 @@ namespace NCAPIv2.Managed
         /// <summary>
         /// The type of data that will be placed in the FIFO
         /// </summary>
-        public ncFifoDataType_t DataType => GetProperty<ncFifoDataType_t>(ncFifoOption_t.NC_RW_FIFO_DATA_TYPE);
+        public ncFifoDataType_t DataType
+        {
+            get => GetProperty<ncFifoDataType_t>(ncFifoOption_t.NC_RW_FIFO_DATA_TYPE);
+            set => SetProperty<ncFifoDataType_t>(ncFifoOption_t.NC_RW_FIFO_DATA_TYPE, value);
+        }
         /// <summary>
         /// The type of FIFO 
         /// </summary>
-        public ncFifoType_t Type => GetProperty<ncFifoType_t>(ncFifoOption_t.NC_RW_FIFO_TYPE);
+        public ncFifoType_t Type
+        {
+            get => GetProperty<ncFifoType_t>(ncFifoOption_t.NC_RW_FIFO_TYPE);
+            set => SetProperty<ncFifoType_t>(ncFifoOption_t.NC_RW_FIFO_TYPE, value);
+        }
 
         internal Fifo(ncFifoHandle_t* handle)
         {
